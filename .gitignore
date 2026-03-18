@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtualenv
+venv/
+.venv/
+env/
+
+# Django
+*.log
+db.sqlite3
+media/
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Migrations (opcional - se quiser subir, remova isso)
+**/migrations/
+!**/migrations/__init__.py
+
+# Static files
+staticfiles/
+
+# Coverage / tests
+.coverage
+htmlcov/

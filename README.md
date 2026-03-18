@@ -1,6 +1,6 @@
 # Sistema de Voluntariado Comunitário
 
-Projeto desenvolvido para a disciplina Atividade Extensionista III.
+Projeto desenvolvido para as disciplinas de Atividades Extensionistas.
 
 ## Tecnologias
 - Python

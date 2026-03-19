@@ -43,31 +43,121 @@
         .navbar nav {
             display: flex;
             align-items: center;
+            gap: 18px;
         }
 
-        .navbar nav a {
+        .nav-link {
             color: white;
             text-decoration: none;
-            margin-left: 16px;
             font-weight: bold;
         }
 
-        .navbar nav a:hover {
+        .nav-link:hover {
             text-decoration: underline;
         }
 
-        .logout-btn {
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            background-color: transparent;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown-toggle:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
+        }
+
+        .avatar-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #1779ad;
+            position: relative;
+            display: inline-block;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .avatar-circle::before {
+            content: "";
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 14px;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        .avatar-circle::after {
+            content: "";
+            position: absolute;
+            bottom: 7px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 14px;
+            background-color: white;
+            border-radius: 14px 14px 10px 10px;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 54px;
+            min-width: 200px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .dropdown.open .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu a,
+        .dropdown-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
             background: none;
             border: none;
-            color: white;
-            margin-left: 16px;
-            font-weight: bold;
+            color: #111827;
+            text-decoration: none;
+            font-size: 14px;
             cursor: pointer;
-            font-size: 16px;
         }
 
-        .logout-btn:hover {
-            text-decoration: underline;
+        .dropdown-menu a:hover,
+        .dropdown-menu button:hover {
+            background-color: #f3f4f6;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 4px 0;
+        }
+
+        .logout-menu-form {
+            margin: 0;
         }
 
         .container {
@@ -192,19 +282,37 @@
     {% if user.is_authenticated %}
     <header class="navbar">
         <h1>
-            <a href="{% url 'acoes_list' %}" class="brand-link">Sistema de Voluntariado</a>
+            <a href="{% url 'inicio' %}" class="brand-link">Sistema de Voluntariado</a>
         </h1>
 
         <nav>
-            {% if not user.is_staff %}
-                <a href="{% url 'minhas_inscricoes' %}">Minhas inscrições</a>
+            <a href="{% url 'inicio' %}" class="nav-link">Início</a>
+            <a href="{% url 'acoes_list' %}" class="nav-link">Ações</a>
+            <a href="{% url 'campanhas' %}" class="nav-link">Campanhas</a>
+            <a href="{% url 'ranking' %}" class="nav-link">Ranking</a>
+
+            {% if user.is_staff %}
+                <a href="{% url 'voluntarios_list' %}" class="nav-link">Voluntários</a>
+            {% else %}
+                <a href="{% url 'minhas_inscricoes' %}" class="nav-link">Minhas inscrições</a>
             {% endif %}
 
-            <!-- Logout via POST -->
-            <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="logout-btn">Sair</button>
-            </form>
+            <div class="dropdown" id="userDropdown">
+                <button type="button" class="dropdown-toggle" id="dropdownToggle" aria-label="Menu do usuário">
+                    <span class="avatar-circle"></span>
+                </button>
+
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="{% url 'meu_perfil' %}">Meu perfil</a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <form method="post" action="{% url 'logout' %}" class="logout-menu-form">
+                        {% csrf_token %}
+                        <button type="submit">Sair</button>
+                    </form>
+                </div>
+            </div>
         </nav>
     </header>
     {% endif %}
@@ -222,6 +330,26 @@
 
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdown = document.getElementById('userDropdown');
+            const toggle = document.getElementById('dropdownToggle');
+
+            if (dropdown && toggle) {
+                toggle.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    dropdown.classList.toggle('open');
+                });
+
+                document.addEventListener('click', function (event) {
+                    if (!dropdown.contains(event.target)) {
+                        dropdown.classList.remove('open');
+                    }
+                });
+            }
+        });
+    </script>
 
 </body>
 </html>

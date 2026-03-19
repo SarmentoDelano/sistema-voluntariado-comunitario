@@ -87,12 +87,20 @@
 <div class="page-header">
     <div>
         <h2>Campanhas</h2>
-        <p>Gerencie as campanhas sociais cadastradas.</p>
+        <p>
+            {% if user.is_staff %}
+                Gerencie as campanhas sociais cadastradas.
+            {% else %}
+                Visualize as campanhas sociais cadastradas.
+            {% endif %}
+        </p>
     </div>
 
+    {% if user.is_staff %}
     <div>
         <a href="{% url 'campanha_create' %}" class="btn btn-primary">Nova campanha</a>
     </div>
+    {% endif %}
 </div>
 
 {% if campanhas %}
@@ -110,6 +118,7 @@
                     <span class="tipo-badge">{{ campanha.get_tipo_campanha_display }}</span>
                 </div>
 
+                {% if user.is_staff %}
                 <div class="card-actions">
                     <a href="{% url 'campanha_update' campanha.id %}" class="btn btn-secondary">Editar</a>
                     <form method="post" action="{% url 'campanha_delete' campanha.id %}" onsubmit="return confirm('Tem certeza que deseja excluir esta campanha?');">
@@ -117,6 +126,7 @@
                         <button type="submit" class="btn btn-secondary">Excluir</button>
                     </form>
                 </div>
+                {% endif %}
             </div>
         {% endfor %}
     </div>

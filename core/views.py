@@ -18,15 +18,22 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.db.models import Count, Q
+from django.utils import timezone
+
+
+
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return reverse_lazy('acoes_list')
+        return reverse_lazy('inicio')
 
 
 
@@ -73,7 +80,6 @@ def acoes_list(request):
     return render(request, 'acoes_list.html', {'acoes': acoes})
 
 @login_required
-@user_passes_test(lambda u: u.is_staff)
 def campanhas(request):
     campanhas = Campanha.objects.all().order_by('nome')
     return render(request, 'campanhas.html', {'campanhas': campanhas})
@@ -431,3 +437,280 @@ def campanha_delete(request, campanha_id):
 
     messages.success(request, 'Campanha excluída com sucesso!')
     return redirect('campanhas')
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def voluntarios_list(request):
+    voluntarios = Voluntario.objects.select_related('user').all().order_by('user__first_name', 'user__username')
+    return render(request, 'voluntarios_list.html', {'voluntarios': voluntarios})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def voluntario_create(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        telefone = request.POST.get('telefone')
+        endereco = request.POST.get('endereco')
+        disponibilidade = request.POST.get('disponibilidade')
+
+        form_data = {
+            'username': username,
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'telefone': telefone,
+            'endereco': endereco,
+            'disponibilidade': disponibilidade,
+        }
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username já existe.')
+            return render(request, 'voluntario_form.html', {
+                'page_title': 'Novo Voluntário',
+                'form_data': form_data,
+                'is_edit': False,
+            })
+
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            email=email,
+            first_name=first_name,
+            last_name=last_name
+        )
+
+        Voluntario.objects.create(
+            user=user,
+            telefone=telefone,
+            endereco=endereco,
+            disponibilidade=disponibilidade
+        )
+
+        messages.success(request, 'Voluntário cadastrado com sucesso!')
+        return redirect('voluntarios_list')
+
+    return render(request, 'voluntario_form.html', {
+        'page_title': 'Novo Voluntário',
+        'form_data': {},
+        'is_edit': False,
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def voluntario_update(request, voluntario_id):
+    voluntario = get_object_or_404(Voluntario.objects.select_related('user'), id=voluntario_id)
+    user = voluntario.user
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        telefone = request.POST.get('telefone')
+        endereco = request.POST.get('endereco')
+        disponibilidade = request.POST.get('disponibilidade')
+
+        form_data = {
+            'username': username,
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'telefone': telefone,
+            'endereco': endereco,
+            'disponibilidade': disponibilidade,
+        }
+
+        if User.objects.filter(username=username).exclude(id=user.id).exists():
+            messages.error(request, 'Username já existe.')
+            return render(request, 'voluntario_form.html', {
+                'page_title': 'Editar Voluntário',
+                'form_data': form_data,
+                'is_edit': True,
+                'voluntario': voluntario,
+            })
+
+        user.username = username
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        if password:
+            user.set_password(password)
+        user.save()
+
+        voluntario.telefone = telefone
+        voluntario.endereco = endereco
+        voluntario.disponibilidade = disponibilidade
+        voluntario.save()
+
+        messages.success(request, 'Voluntário atualizado com sucesso!')
+        return redirect('voluntarios_list')
+
+    form_data = {
+        'username': user.username,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'email': user.email,
+        'telefone': voluntario.telefone,
+        'endereco': voluntario.endereco,
+        'disponibilidade': voluntario.disponibilidade,
+    }
+
+    return render(request, 'voluntario_form.html', {
+        'page_title': 'Editar Voluntário',
+        'form_data': form_data,
+        'is_edit': True,
+        'voluntario': voluntario,
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def voluntario_delete(request, voluntario_id):
+    if request.method != 'POST':
+        return redirect('voluntarios_list')
+
+    voluntario = get_object_or_404(Voluntario.objects.select_related('user'), id=voluntario_id)
+    voluntario.user.delete()
+
+    messages.success(request, 'Voluntário excluído com sucesso!')
+    return redirect('voluntarios_list')
+
+@login_required
+def meu_perfil(request):
+    user = request.user
+
+    voluntario, _ = Voluntario.objects.get_or_create(
+        user=user,
+        defaults={
+            'telefone': '',
+            'endereco': '',
+            'disponibilidade': '',
+        }
+    )
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        telefone = request.POST.get('telefone')
+        endereco = request.POST.get('endereco')
+        disponibilidade = request.POST.get('disponibilidade')
+
+        form_data = {
+            'username': username,
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'telefone': telefone,
+            'endereco': endereco,
+            'disponibilidade': disponibilidade,
+        }
+
+        if User.objects.filter(username=username).exclude(id=user.id).exists():
+            messages.error(request, 'Username já existe.')
+            return render(request, 'meu_perfil.html', {
+                'form_data': form_data
+            })
+
+        user.username = username
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+
+        if password:
+            user.set_password(password)
+
+        user.save()
+
+        voluntario.telefone = telefone
+        voluntario.endereco = endereco
+        voluntario.disponibilidade = disponibilidade
+        voluntario.save()
+
+        messages.success(request, 'Perfil atualizado com sucesso!')
+
+        if password:
+            return redirect('login')
+
+        return redirect('meu_perfil')
+
+    form_data = {
+        'username': user.username,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'email': user.email,
+        'telefone': voluntario.telefone,
+        'endereco': voluntario.endereco,
+        'disponibilidade': voluntario.disponibilidade,
+    }
+
+    return render(request, 'meu_perfil.html', {
+        'form_data': form_data
+    })
+
+@login_required
+def ranking(request):
+    ranking = (
+        Voluntario.objects.select_related('user')
+        .annotate(
+            pontos=Count(
+                'inscricoes',
+                filter=Q(inscricoes__status_participacao='presente')
+            )
+        )
+        .order_by('-pontos', 'user__first_name', 'user__username')
+        .values(
+            'id',
+            'user__username',
+            'user__first_name',
+            'user__last_name',
+            'pontos'
+        )
+    )
+
+    return render(request, 'ranking.html', {'ranking': ranking})
+
+@login_required
+def inicio(request):
+    hoje = timezone.localdate()
+
+    top3 = (
+        Voluntario.objects.select_related('user')
+        .annotate(
+            pontos=Count(
+                'inscricoes',
+                filter=Q(
+                    inscricoes__status_participacao='presente',
+                    inscricoes__acao__data__month=hoje.month,
+                    inscricoes__acao__data__year=hoje.year,
+                )
+            )
+        )
+        .filter(pontos__gt=0)
+        .order_by('-pontos', 'user__first_name', 'user__username')
+        .values(
+            'id',
+            'user__username',
+            'user__first_name',
+            'user__last_name',
+            'pontos'
+        )[:3]
+    )
+
+    campanhas = Campanha.objects.all().order_by('nome')
+    acoes = AcaoComunitaria.objects.all().order_by('data', 'horario')
+
+    return render(request, 'inicio.html', {
+        'top3': top3,
+        'campanhas': campanhas,
+        'acoes': acoes,
+    })

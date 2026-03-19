@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Voluntários{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+        color: #1f4f82;
+    }
+
+    .table-card {
+        overflow-x: auto;
+    }
+
+    .voluntarios-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    .voluntarios-table th,
+    .voluntarios-table td {
+        text-align: left;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: middle;
+    }
+
+    .voluntarios-table th {
+        background-color: #f9fafb;
+        color: #1f4f82;
+        font-size: 14px;
+    }
+
+    .row-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+
+    .row-actions form {
+        margin: 0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Voluntários</h2>
+        <p>Gerencie os voluntários cadastrados na plataforma.</p>
+    </div>
+
+    <div>
+        <a href="{% url 'voluntario_create' %}" class="btn btn-primary">Novo voluntário</a>
+    </div>
+</div>
+
+{% if voluntarios %}
+    <div class="card table-card">
+        <table class="voluntarios-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Endereço</th>
+                    <th>Disponibilidade</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for voluntario in voluntarios %}
+                    <tr>
+                        <td>{{ voluntario.user.username }}</td>
+                        <td>
+                            {{ voluntario.user.first_name }} {{ voluntario.user.last_name }}
+                            {% if not voluntario.user.first_name and not voluntario.user.last_name %}
+                                {{ voluntario.user.username }}
+                            {% endif %}
+                        </td>
+                        <td>{{ voluntario.user.email|default:"-" }}</td>
+                        <td>{{ voluntario.telefone|default:"-" }}</td>
+                        <td>{{ voluntario.endereco|default:"-" }}</td>
+                        <td>{{ voluntario.disponibilidade|default:"-" }}</td>
+                        <td>
+                            <div class="row-actions">
+                                <a href="{% url 'voluntario_update' voluntario.id %}" class="btn btn-secondary">Editar</a>
+
+                                <form method="post" action="{% url 'voluntario_delete' voluntario.id %}" onsubmit="return confirm('Tem certeza que deseja excluir este voluntário?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-secondary">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card empty-state">
+        <p>Nenhum voluntário cadastrado no momento.</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}Início{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 28px;
+    }
+
+    .page-header h2 {
+        color: #1f4f82;
+        margin-bottom: 6px;
+    }
+
+    .section-title {
+        color: #1f4f82;
+        margin-bottom: 16px;
+    }
+
+    .section-block {
+        margin-bottom: 32px;
+    }
+
+    .top3-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    .top3-card {
+        text-align: center;
+        border: 1px solid #e5e7eb;
+    }
+
+    .medalha {
+        font-size: 38px;
+        margin-bottom: 10px;
+    }
+
+    .medalha-ouro {
+        color: #d4a017;
+    }
+
+    .medalha-prata {
+        color: #9ca3af;
+    }
+
+    .medalha-bronze {
+        color: #b45309;
+    }
+
+    .top3-nome {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1f4f82;
+        margin-bottom: 8px;
+    }
+
+    .top3-user {
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+
+    .top3-pontos {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .campanhas-grid,
+    .acoes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .campanha-card,
+    .acao-card {
+        border: 1px solid #e5e7eb;
+    }
+
+    .campanha-titulo,
+    .acao-titulo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1f4f82;
+        margin-bottom: 10px;
+    }
+
+    .campanha-descricao,
+    .acao-descricao {
+        margin-bottom: 16px;
+        line-height: 1.5;
+        color: #4b5563;
+    }
+
+    .campanha-info,
+    .acao-info {
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .campanha-info strong,
+    .acao-info strong {
+        color: #111827;
+    }
+
+    .tipo-badge,
+    .acao-status {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-top: 8px;
+    }
+
+    .tipo-badge {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-ativa {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-cancelada {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-finalizada {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: nowrap;
+        align-items: center;
+        margin-top: 16px;
+    }
+
+    .card-actions form {
+        margin: 0;
+    }
+
+    .card-actions .btn {
+        white-space: nowrap;
+    }
+
+    .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Bem-vindo ao Sistema de Voluntariado</h2>
+    <p>Acompanhe o destaque do mês, as campanhas e as ações disponíveis.</p>
+</div>
+
+<div class="section-block">
+    <h3 class="section-title">🏆 Top 3 do mês</h3>
+
+    {% if top3 %}
+        <div class="top3-grid">
+            {% for item in top3 %}
+                <div class="card top3-card">
+                    <div class="medalha
+                        {% if forloop.counter == 1 %}medalha-ouro{% elif forloop.counter == 2 %}medalha-prata{% else %}medalha-bronze{% endif %}">
+                        {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}
+                    </div>
+
+                    <div class="top3-nome">
+                        {% if item.user__first_name or item.user__last_name %}
+                            {{ item.user__first_name }} {{ item.user__last_name }}
+                        {% else %}
+                            {{ item.user__username }}
+                        {% endif %}
+                    </div>
+
+                    <div class="top3-user">@{{ item.user__username }}</div>
+                    <div class="top3-pontos">{{ item.pontos }} ponto{{ item.pontos|pluralize }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card empty-state">
+            <p>Ainda não há participações confirmadas neste mês.</p>
+        </div>
+    {% endif %}
+</div>
+
+<div class="section-block">
+    <h3 class="section-title">Campanhas</h3>
+
+    {% if campanhas %}
+        <div class="campanhas-grid">
+            {% for campanha in campanhas %}
+                <div class="card campanha-card">
+                    <div class="campanha-titulo">{{ campanha.nome }}</div>
+
+                    <div class="campanha-descricao">
+                        {{ campanha.descricao }}
+                    </div>
+
+                    <div class="campanha-info">
+                        <strong>Tipo:</strong>
+                        <span class="tipo-badge">{{ campanha.get_tipo_campanha_display }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card empty-state">
+            <p>Nenhuma campanha cadastrada no momento.</p>
+        </div>
+    {% endif %}
+</div>
+
+<div class="section-block">
+    <h3 class="section-title">Ações Comunitárias</h3>
+
+    {% if acoes %}
+        <div class="acoes-grid">
+            {% for acao in acoes %}
+                <div class="card acao-card">
+                    <div class="acao-titulo">{{ acao.titulo }}</div>
+
+                    <div class="acao-descricao">
+                        {{ acao.descricao }}
+                    </div>
+
+                    <div class="acao-info">
+                        <strong>Data:</strong> {{ acao.data|date:"d/m/Y" }}
+                    </div>
+
+                    <div class="acao-info">
+                        <strong>Horário:</strong> {{ acao.horario|time:"H:i" }}
+                    </div>
+
+                    <div class="acao-info">
+                        <strong>Local:</strong> {{ acao.local }}
+                    </div>
+
+                    <div class="acao-status status-{{ acao.status }}">
+                        {{ acao.get_status_display }}
+                    </div>
+
+                    <div class="card-actions">
+                        {% if user.is_staff %}
+                            <a href="{% url 'acao_update' acao.id %}" class="btn btn-secondary">Editar</a>
+                            <a href="{% url 'inscritos_acao' acao.id %}" class="btn btn-secondary">Ver inscritos</a>
+
+                            <form method="post" action="{% url 'cancelar_acao' acao.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary">Cancelar</button>
+                            </form>
+                        {% else %}
+                            {% if acao.status == 'ativa' %}
+                                <form method="post" action="{% url 'inscrever_acao' acao.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary">Inscrever-se</button>
+                                </form>
+                            {% else %}
+                                <button type="button" class="btn btn-secondary" disabled>Indisponível</button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card empty-state">
+            <p>Nenhuma ação comunitária cadastrada no momento.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

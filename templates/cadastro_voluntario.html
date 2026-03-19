@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastro de Voluntário{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cadastro-container {
+        max-width: 600px;
+        margin: 40px auto;
+    }
+
+    .form-title {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .form-title h2 {
+        color: #1f4f82;
+    }
+
+    .btn-full {
+        width: 100%;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    .form-footer {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    .form-footer a {
+        color: #1f4f82;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .form-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cadastro-container">
+    <div class="card">
+
+        <div class="form-title">
+            <h2>Cadastro de Voluntário</h2>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" name="first_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Sobrenome</label>
+                    <input type="text" name="last_name" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="password" required>
+            </div>
+
+            <div class="form-group">
+                <label>Telefone</label>
+                <input type="text" name="telefone">
+            </div>
+
+            <div class="form-group">
+                <label>Endereço</label>
+                <input type="text" name="endereco">
+            </div>
+
+            <div class="form-group">
+                <label>Disponibilidade</label>
+                <textarea name="disponibilidade"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full mt-3">
+                Cadastrar
+            </button>
+        </form>
+
+        <div class="form-footer">
+            Já possui conta?
+            <a href="{% url 'login' %}">Voltar para login</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

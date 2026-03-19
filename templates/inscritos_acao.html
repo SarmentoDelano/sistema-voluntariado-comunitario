@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscritos na Ação{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+        color: #1f4f82;
+        margin-bottom: 6px;
+    }
+
+    .page-subtitle {
+        color: #6b7280;
+    }
+
+    .table-card {
+        overflow-x: auto;
+    }
+
+    .inscritos-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+
+    .inscritos-table th,
+    .inscritos-table td {
+        text-align: left;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: middle;
+    }
+
+    .inscritos-table th {
+        background-color: #f9fafb;
+        color: #1f4f82;
+        font-size: 14px;
+    }
+
+    .inscritos-table td {
+        font-size: 14px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .status-pendente {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-presente {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-ausente {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .row-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .row-actions form {
+        margin: 0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Inscritos na Ação</h2>
+        <p class="page-subtitle"><strong>{{ acao.titulo }}</strong></p>
+    </div>
+
+    <div>
+        <a href="{% url 'acoes_list' %}" class="btn btn-secondary">Voltar para ações</a>
+    </div>
+</div>
+
+{% if inscricoes %}
+    <div class="card table-card">
+        <table class="inscritos-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Telefone</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inscricao in inscricoes %}
+                    <tr>
+                        <td>
+                            {{ inscricao.voluntario.user.first_name }} {{ inscricao.voluntario.user.last_name }}
+                            {% if not inscricao.voluntario.user.first_name and not inscricao.voluntario.user.last_name %}
+                                {{ inscricao.voluntario.user.username }}
+                            {% endif %}
+                        </td>
+                        <td>{{ inscricao.voluntario.telefone|default:'Não informado' }}</td>
+                        <td>
+                            <span class="status-badge status-{{ inscricao.status_participacao }}">
+                                {{ inscricao.get_status_participacao_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <form method="post" action="{% url 'marcar_presenca' inscricao.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary">Marcar presença</button>
+                                </form>
+
+                                <form method="post" action="{% url 'marcar_ausencia' inscricao.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-secondary">Marcar ausência</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card empty-state">
+        <p>Nenhum voluntário inscrito nesta ação até o momento.</p>
+    </div>
+{% endif %}
+{% endblock %}

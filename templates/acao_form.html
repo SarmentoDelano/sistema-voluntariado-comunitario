@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Ação Comunitária{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+    }
+
+    .form-header {
+        margin-bottom: 24px;
+        text-align: center;
+    }
+
+    .form-header h2 {
+        color: #1f4f82;
+        margin-bottom: 8px;
+    }
+
+    .form-header p {
+        color: #6b7280;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+    }
+
+    .form-actions .btn {
+        min-width: 140px;
+        text-align: center;
+    }
+
+    textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card">
+        <div class="form-header">
+            <h2>{{ page_title }}</h2>
+            <p>Preencha os dados da ação comunitária.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_titulo">Título</label>
+                <input
+                    type="text"
+                    name="titulo"
+                    id="id_titulo"
+                    value="{{ form_data.titulo|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_descricao">Descrição</label>
+                <textarea
+                    name="descricao"
+                    id="id_descricao"
+                    required
+                >{{ form_data.descricao|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="id_data">Data</label>
+                <input
+                    type="date"
+                    name="data"
+                    id="id_data"
+                    value="{{ form_data.data|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_horario">Horário</label>
+                <input
+                    type="time"
+                    name="horario"
+                    id="id_horario"
+                    value="{{ form_data.horario|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_local">Local</label>
+                <input
+                    type="text"
+                    name="local"
+                    id="id_local"
+                    value="{{ form_data.local|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_status">Status</label>
+                <select name="status" id="id_status" required>
+                    <option value="">Selecione</option>
+                    <option value="ativa" {% if form_data.status == 'ativa' %}selected{% endif %}>Ativa</option>
+                    <option value="cancelada" {% if form_data.status == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                    <option value="finalizada" {% if form_data.status == 'finalizada' %}selected{% endif %}>Finalizada</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if is_edit %}Atualizar{% else %}Salvar{% endif %}
+                </button>
+                <a href="{% url 'acoes_list' %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

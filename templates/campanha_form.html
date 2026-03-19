@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Campanha{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+    }
+
+    .form-header {
+        margin-bottom: 24px;
+        text-align: center;
+    }
+
+    .form-header h2 {
+        color: #1f4f82;
+        margin-bottom: 8px;
+    }
+
+    .form-header p {
+        color: #6b7280;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+    }
+
+    .form-actions .btn {
+        min-width: 140px;
+        text-align: center;
+    }
+
+    textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card">
+        <div class="form-header">
+            <h2>{{ page_title }}</h2>
+            <p>Preencha os dados da campanha.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_nome">Nome</label>
+                <input
+                    type="text"
+                    name="nome"
+                    id="id_nome"
+                    value="{{ form_data.nome|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_descricao">Descrição</label>
+                <textarea
+                    name="descricao"
+                    id="id_descricao"
+                    required
+                >{{ form_data.descricao|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="id_tipo_campanha">Tipo da campanha</label>
+                <select name="tipo_campanha" id="id_tipo_campanha" required>
+                    <option value="">Selecione</option>
+                    <option value="alimentos" {% if form_data.tipo_campanha == 'alimentos' %}selected{% endif %}>Arrecadação de Alimentos</option>
+                    <option value="roupas" {% if form_data.tipo_campanha == 'roupas' %}selected{% endif %}>Arrecadação de Roupas</option>
+                    <option value="evangelismo" {% if form_data.tipo_campanha == 'evangelismo' %}selected{% endif %}>Missão/Evangelismo</option>
+                    <option value="outros" {% if form_data.tipo_campanha == 'outros' %}selected{% endif %}>Outros</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if is_edit %}Atualizar{% else %}Salvar{% endif %}
+                </button>
+                <a href="{% url 'campanhas' %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

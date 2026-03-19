@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Minhas Inscrições{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+        color: #1f4f82;
+    }
+
+    .table-card {
+        overflow-x: auto;
+    }
+
+    .inscricoes-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+    }
+
+    .inscricoes-table th,
+    .inscricoes-table td {
+        text-align: left;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .inscricoes-table th {
+        background-color: #f9fafb;
+        color: #1f4f82;
+        font-size: 14px;
+    }
+
+    .inscricoes-table td {
+        font-size: 14px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .status-pendente {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-presente {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-ausente {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Minhas Inscrições</h2>
+        <p>Acompanhe suas participações nas ações comunitárias.</p>
+    </div>
+
+    <div>
+        <a href="{% url 'acoes_list' %}" class="btn btn-secondary">Voltar para ações</a>
+    </div>
+</div>
+
+{% if inscricoes %}
+    <div class="card table-card">
+        <table class="inscricoes-table">
+            <thead>
+                <tr>
+                    <th>Ação</th>
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th>Local</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inscricao in inscricoes %}
+                    <tr>
+                        <td>{{ inscricao.acao.titulo }}</td>
+                        <td>{{ inscricao.acao.data|date:"d/m/Y" }}</td>
+                        <td>{{ inscricao.acao.horario|time:"H:i" }}</td>
+                        <td>{{ inscricao.acao.local }}</td>
+                        <td>
+                            <span class="status-badge status-{{ inscricao.status_participacao }}">
+                                {{ inscricao.get_status_participacao_display }}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card empty-state">
+        <p>Você ainda não possui inscrições.</p>
+    </div>
+{% endif %}
+{% endblock %}

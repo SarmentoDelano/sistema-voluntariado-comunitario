@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Ações Comunitárias{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+        color: #1f4f82;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .acoes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .acao-card {
+        border: 1px solid #e5e7eb;
+    }
+
+    .acao-titulo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1f4f82;
+        margin-bottom: 10px;
+    }
+
+    .acao-descricao {
+        margin-bottom: 16px;
+        line-height: 1.5;
+        color: #4b5563;
+    }
+
+    .acao-info {
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .acao-info strong {
+        color: #111827;
+    }
+
+    .acao-status {
+        display: inline-block;
+        margin-top: 8px;
+        margin-bottom: 18px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .status-ativa {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-cancelada {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-finalizada {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: nowrap;
+        margin-top: 10px;
+        align-items: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+    }
+
+    .card-actions form {
+        margin: 0;
+    }
+
+    .card-actions .btn {
+        white-space: nowrap;
+    }
+
+    .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Ações Comunitárias</h2>
+        <p>Confira as ações disponíveis na plataforma.</p>
+    </div>
+
+    <div class="header-actions">
+        {% if user.is_staff %}
+            <a href="{% url 'acao_create' %}" class="btn btn-primary">Nova ação</a>
+            <a href="{% url 'campanhas' %}" class="btn btn-secondary">Campanhas</a>
+        {% else %}
+            <a href="{% url 'minhas_inscricoes' %}" class="btn btn-secondary">Minhas inscrições</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if acoes %}
+    <div class="acoes-grid">
+        {% for acao in acoes %}
+            <div class="card acao-card">
+                <div class="acao-titulo">{{ acao.titulo }}</div>
+
+                <div class="acao-descricao">
+                    {{ acao.descricao }}
+                </div>
+
+                <div class="acao-info">
+                    <strong>Data:</strong> {{ acao.data|date:"d/m/Y" }}
+                </div>
+
+                <div class="acao-info">
+                    <strong>Horário:</strong> {{ acao.horario|time:"H:i" }}
+                </div>
+
+                <div class="acao-info">
+                    <strong>Local:</strong> {{ acao.local }}
+                </div>
+
+                <div class="acao-status status-{{ acao.status }}">
+                    {{ acao.get_status_display }}
+                </div>
+
+                <div class="card-actions">
+                    {% if user.is_staff %}
+                        <a href="{% url 'acao_update' acao.id %}" class="btn btn-secondary">Editar</a>
+                        <a href="{% url 'inscritos_acao' acao.id %}" class="btn btn-secondary">Ver inscritos</a>
+
+                        <form method="post" action="{% url 'cancelar_acao' acao.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary">Cancelar</button>
+                        </form>
+                    {% else %}
+                        {% if acao.status == 'ativa' %}
+                            <form method="post" action="{% url 'inscrever_acao' acao.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Inscrever-se</button>
+                            </form>
+                        {% else %}
+                            <button type="button" class="btn btn-secondary" disabled>Indisponível</button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card empty-state">
+        <p>Nenhuma ação comunitária cadastrada no momento.</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Campanhas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+        color: #1f4f82;
+    }
+
+    .campanhas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .campanha-card {
+        border: 1px solid #e5e7eb;
+    }
+
+    .campanha-titulo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1f4f82;
+        margin-bottom: 10px;
+    }
+
+    .campanha-descricao {
+        margin-bottom: 16px;
+        line-height: 1.5;
+        color: #4b5563;
+    }
+
+    .campanha-info {
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .campanha-info strong {
+        color: #111827;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: nowrap;
+        margin-top: 16px;
+        align-items: center;
+    }
+
+    .card-actions form {
+        margin: 0;
+    }
+
+    .card-actions .btn {
+        white-space: nowrap;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+    }
+
+    .tipo-badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Campanhas</h2>
+        <p>Gerencie as campanhas sociais cadastradas.</p>
+    </div>
+
+    <div>
+        <a href="{% url 'campanha_create' %}" class="btn btn-primary">Nova campanha</a>
+    </div>
+</div>
+
+{% if campanhas %}
+    <div class="campanhas-grid">
+        {% for campanha in campanhas %}
+            <div class="card campanha-card">
+                <div class="campanha-titulo">{{ campanha.nome }}</div>
+
+                <div class="campanha-descricao">
+                    {{ campanha.descricao }}
+                </div>
+
+                <div class="campanha-info">
+                    <strong>Tipo:</strong>
+                    <span class="tipo-badge">{{ campanha.get_tipo_campanha_display }}</span>
+                </div>
+
+                <div class="card-actions">
+                    <a href="{% url 'campanha_update' campanha.id %}" class="btn btn-secondary">Editar</a>
+                    <form method="post" action="{% url 'campanha_delete' campanha.id %}" onsubmit="return confirm('Tem certeza que deseja excluir esta campanha?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary">Excluir</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card empty-state">
+        <p>Nenhuma campanha cadastrada no momento.</p>
+    </div>
+{% endif %}
+{% endblock %}

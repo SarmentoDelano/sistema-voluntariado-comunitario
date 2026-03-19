@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Nova Campanha{% endblock %}
+{% block title %}Campanha{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -74,13 +74,44 @@
             </div>
 
             <div class="form-group">
-                <label for="id_tipo_campanha">Tipo da campanha</label>
-                <select name="tipo_campanha" id="id_tipo_campanha" required>
+                <label for="id_data_inicio">Data de início</label>
+                <input
+                    type="date"
+                    name="data_inicio"
+                    id="id_data_inicio"
+                    value="{{ form_data.data_inicio|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_data_fim">Data final</label>
+                <input
+                    type="date"
+                    name="data_fim"
+                    id="id_data_fim"
+                    value="{{ form_data.data_fim|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_local">Local</label>
+                <input
+                    type="text"
+                    name="local"
+                    id="id_local"
+                    value="{{ form_data.local|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_status">Status</label>
+                <select name="status" id="id_status" required>
                     <option value="">Selecione</option>
-                    <option value="alimentos" {% if form_data.tipo_campanha == 'alimentos' %}selected{% endif %}>Arrecadação de Alimentos</option>
-                    <option value="roupas" {% if form_data.tipo_campanha == 'roupas' %}selected{% endif %}>Arrecadação de Roupas</option>
-                    <option value="evangelismo" {% if form_data.tipo_campanha == 'evangelismo' %}selected{% endif %}>Missão/Evangelismo</option>
-                    <option value="outros" {% if form_data.tipo_campanha == 'outros' %}selected{% endif %}>Outros</option>
+                    <option value="ativa" {% if form_data.status == 'ativa' %}selected{% endif %}>Ativa</option>
+                    <option value="encerrada" {% if form_data.status == 'encerrada' %}selected{% endif %}>Encerrada</option>
                 </select>
             </div>
 

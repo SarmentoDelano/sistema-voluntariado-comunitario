@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.utils import timezone
 
 class Voluntario(models.Model):
     user = models.OneToOneField(
@@ -74,21 +74,31 @@ class Inscricao(models.Model):
 
 
 class Campanha(models.Model):
-    TIPO_CAMPANHA_CHOICES = [
-        ('alimentos', 'Arrecadação de Alimentos'),
-        ('roupas', 'Arrecadação de Roupas'),
-        ('evangelismo', 'Missão/Evangelismo'),
-        ('outros', 'Outros'),
+    STATUS_CHOICES = [
+        ('ativa', 'Ativa'),
+        ('encerrada', 'Encerrada'),
     ]
 
     nome = models.CharField(max_length=150)
     descricao = models.TextField()
-    tipo_campanha = models.CharField(max_length=30, choices=TIPO_CAMPANHA_CHOICES)
+
+    data_inicio = models.DateField(null=True, blank=True)
+    data_fim = models.DateField(null=True, blank=True, help_text="Data limite da campanha")
+
+    local = models.CharField(max_length=255, null=True, blank=True)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='ativa'
+    )
+
     criado_por = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='campanhas_criadas'
     )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -24,6 +24,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Count, Q
 from django.utils import timezone
+from django.core.paginator import Paginator
 
 
 
@@ -75,14 +76,51 @@ def cadastro_voluntario_view(request):
 
     return render(request, 'cadastro_voluntario.html')
 
+
+
+from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def acoes_list(request):
-    acoes = AcaoComunitaria.objects.all().order_by('data', 'horario')
-    return render(request, 'acoes_list.html', {'acoes': acoes})
+    acoes_lista = AcaoComunitaria.objects.all().order_by('data', 'horario')
+
+    status = request.GET.get('status')
+
+    if status:
+        acoes_lista = acoes_lista.filter(status=status)
+
+    paginator = Paginator(acoes_lista, 6)
+    page_number = request.GET.get('page')
+    acoes = paginator.get_page(page_number)
+
+    context = {
+        'acoes': acoes,
+        'filtros': {
+            'status': status or '',
+        }
+    }
+    return render(request, 'acoes_list.html', context)
 
 @login_required
 def campanhas(request):
-    campanhas = Campanha.objects.all().order_by('nome')
-    return render(request, 'campanhas.html', {'campanhas': campanhas})
+    campanhas_lista = Campanha.objects.all().order_by('data_fim', 'nome')
+
+    status = request.GET.get('status')
+
+    if status:
+        campanhas_lista = campanhas_lista.filter(status=status)
+
+    paginator = Paginator(campanhas_lista, 6)
+    page_number = request.GET.get('page')
+    campanhas = paginator.get_page(page_number)
+
+    return render(request, 'campanhas.html', {
+        'campanhas': campanhas,
+        'filtros': {
+            'status': status or '',
+        }
+    })
 
 
 @login_required
@@ -288,13 +326,24 @@ def acao_update(request, acao_id):
 @user_passes_test(lambda u: u.is_staff)
 def inscritos_acao(request, acao_id):
     acao = get_object_or_404(AcaoComunitaria, id=acao_id)
+
     inscricoes = Inscricao.objects.filter(
         acao=acao
-    ).select_related('voluntario__user', 'acao').order_by('voluntario__user__first_name', 'voluntario__user__username')
+    ).select_related('voluntario__user', 'acao').order_by(
+        'voluntario__user__first_name',
+        'voluntario__user__username'
+    )
+
+    voluntarios_ja_inscritos = inscricoes.values_list('voluntario_id', flat=True)
+
+    voluntarios_disponiveis = Voluntario.objects.select_related('user').exclude(
+        id__in=voluntarios_ja_inscritos
+    ).order_by('user__first_name', 'user__username')
 
     return render(request, 'inscritos_acao.html', {
         'acao': acao,
         'inscricoes': inscricoes,
+        'voluntarios_disponiveis': voluntarios_disponiveis,
     })
 
 @login_required
@@ -348,16 +397,30 @@ def campanha_create(request):
     if request.method == 'POST':
         nome = request.POST.get('nome')
         descricao = request.POST.get('descricao')
-        tipo_campanha = request.POST.get('tipo_campanha')
+        data_inicio = request.POST.get('data_inicio')
+        data_fim = request.POST.get('data_fim')
+        local = request.POST.get('local')
+        status = request.POST.get('status')
 
         form_data = {
             'nome': nome,
             'descricao': descricao,
-            'tipo_campanha': tipo_campanha,
+            'data_inicio': data_inicio,
+            'data_fim': data_fim,
+            'local': local,
+            'status': status,
         }
 
-        if not all([nome, descricao, tipo_campanha]):
+        if not all([nome, descricao, data_inicio, data_fim, local, status]):
             messages.error(request, 'Preencha todos os campos obrigatórios.')
+            return render(request, 'campanha_form.html', {
+                'page_title': 'Nova Campanha',
+                'form_data': form_data,
+                'is_edit': False,
+            })
+
+        if data_fim < data_inicio:
+            messages.error(request, 'A data final não pode ser menor que a data de início.')
             return render(request, 'campanha_form.html', {
                 'page_title': 'Nova Campanha',
                 'form_data': form_data,
@@ -367,7 +430,10 @@ def campanha_create(request):
         Campanha.objects.create(
             nome=nome,
             descricao=descricao,
-            tipo_campanha=tipo_campanha,
+            data_inicio=data_inicio,
+            data_fim=data_fim,
+            local=local,
+            status=status,
             criado_por=request.user
         )
 
@@ -388,16 +454,31 @@ def campanha_update(request, campanha_id):
     if request.method == 'POST':
         nome = request.POST.get('nome')
         descricao = request.POST.get('descricao')
-        tipo_campanha = request.POST.get('tipo_campanha')
+        data_inicio = request.POST.get('data_inicio')
+        data_fim = request.POST.get('data_fim')
+        local = request.POST.get('local')
+        status = request.POST.get('status')
 
         form_data = {
             'nome': nome,
             'descricao': descricao,
-            'tipo_campanha': tipo_campanha,
+            'data_inicio': data_inicio,
+            'data_fim': data_fim,
+            'local': local,
+            'status': status,
         }
 
-        if not all([nome, descricao, tipo_campanha]):
+        if not all([nome, descricao, data_inicio, data_fim, local, status]):
             messages.error(request, 'Preencha todos os campos obrigatórios.')
+            return render(request, 'campanha_form.html', {
+                'page_title': 'Editar Campanha',
+                'form_data': form_data,
+                'is_edit': True,
+                'campanha': campanha,
+            })
+
+        if data_fim < data_inicio:
+            messages.error(request, 'A data final não pode ser menor que a data de início.')
             return render(request, 'campanha_form.html', {
                 'page_title': 'Editar Campanha',
                 'form_data': form_data,
@@ -407,7 +488,10 @@ def campanha_update(request, campanha_id):
 
         campanha.nome = nome
         campanha.descricao = descricao
-        campanha.tipo_campanha = tipo_campanha
+        campanha.data_inicio = data_inicio
+        campanha.data_fim = data_fim
+        campanha.local = local
+        campanha.status = status
         campanha.save()
 
         messages.success(request, 'Campanha atualizada com sucesso!')
@@ -416,7 +500,10 @@ def campanha_update(request, campanha_id):
     form_data = {
         'nome': campanha.nome,
         'descricao': campanha.descricao,
-        'tipo_campanha': campanha.tipo_campanha,
+        'data_inicio': campanha.data_inicio.strftime('%Y-%m-%d') if campanha.data_inicio else '',
+        'data_fim': campanha.data_fim.strftime('%Y-%m-%d') if campanha.data_fim else '',
+        'local': campanha.local,
+        'status': campanha.status,
     }
 
     return render(request, 'campanha_form.html', {
@@ -679,6 +766,11 @@ def ranking(request):
 
     return render(request, 'ranking.html', {'ranking': ranking})
 
+from django.core.paginator import Paginator
+from django.db.models import Count, Q
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+
 @login_required
 def inicio(request):
     hoje = timezone.localdate()
@@ -706,11 +798,55 @@ def inicio(request):
         )[:3]
     )
 
-    campanhas = Campanha.objects.all().order_by('nome')
-    acoes = AcaoComunitaria.objects.all().order_by('data', 'horario')
+    campanhas_lista = Campanha.objects.all().order_by('data_fim', 'nome')
+    campanhas_paginator = Paginator(campanhas_lista, 3)
+    campanhas_page_number = request.GET.get('campanhas_page')
+    campanhas = campanhas_paginator.get_page(campanhas_page_number)
+
+    acoes_lista = AcaoComunitaria.objects.all().order_by('data', 'horario')
+    acoes_paginator = Paginator(acoes_lista, 6)
+    acoes_page_number = request.GET.get('acoes_page')
+    acoes = acoes_paginator.get_page(acoes_page_number)
 
     return render(request, 'inicio.html', {
         'top3': top3,
         'campanhas': campanhas,
         'acoes': acoes,
     })
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def inscrever_voluntario_admin(request, acao_id):
+    if request.method != 'POST':
+        return redirect('inscritos_acao', acao_id=acao_id)
+
+    acao = get_object_or_404(AcaoComunitaria, id=acao_id)
+    voluntario_id = request.POST.get('voluntario_id')
+
+    if not voluntario_id:
+        messages.error(request, 'Selecione um voluntário.')
+        return redirect('inscritos_acao', acao_id=acao.id)
+
+    voluntario = get_object_or_404(Voluntario, id=voluntario_id)
+
+    if acao.status != 'ativa':
+        messages.error(request, 'Só é possível inscrever voluntários em ações ativas.')
+        return redirect('inscritos_acao', acao_id=acao.id)
+
+    inscricao_existente = Inscricao.objects.filter(
+        voluntario=voluntario,
+        acao=acao
+    ).exists()
+
+    if inscricao_existente:
+        messages.warning(request, 'Esse voluntário já está inscrito nesta ação.')
+        return redirect('inscritos_acao', acao_id=acao.id)
+
+    Inscricao.objects.create(
+        voluntario=voluntario,
+        acao=acao,
+        status_participacao='inscrito'
+    )
+
+    messages.success(request, 'Voluntário inscrito com sucesso na ação.')
+    return redirect('inscritos_acao', acao_id=acao.id)

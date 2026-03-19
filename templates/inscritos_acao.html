@@ -22,6 +22,23 @@
         color: #6b7280;
     }
 
+    .add-form-card {
+        margin-bottom: 24px;
+    }
+
+    .inline-form {
+        display: flex;
+        gap: 12px;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+
+    .inline-form .form-group {
+        flex: 1;
+        min-width: 280px;
+        margin-bottom: 0;
+    }
+
     .table-card {
         overflow-x: auto;
     }
@@ -58,9 +75,9 @@
         font-weight: bold;
     }
 
-    .status-pendente {
-        background-color: #fef3c7;
-        color: #92400e;
+    .status-inscrito {
+        background-color: #dbeafe;
+        color: #1e40af;
     }
 
     .status-presente {
@@ -101,6 +118,38 @@
     <div>
         <a href="{% url 'acoes_list' %}" class="btn btn-secondary">Voltar para ações</a>
     </div>
+</div>
+
+<div class="card add-form-card">
+    <form method="post" action="{% url 'inscrever_voluntario_admin' acao.id %}" class="inline-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_voluntario_id">Inscrever voluntário nesta ação</label>
+            <select name="voluntario_id" id="id_voluntario_id" {% if acao.status != 'ativa' %}disabled{% endif %}>
+                <option value="">Selecione um voluntário</option>
+                {% for voluntario in voluntarios_disponiveis %}
+                    <option value="{{ voluntario.id }}">
+                        {% if voluntario.user.first_name or voluntario.user.last_name %}
+                            {{ voluntario.user.first_name }} {{ voluntario.user.last_name }}
+                        {% else %}
+                            {{ voluntario.user.username }}
+                        {% endif %}
+                        — {{ voluntario.user.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-primary" {% if acao.status != 'ativa' %}disabled{% endif %}>
+                Inscrever voluntário
+            </button>
+        </div>
+    </form>
+
+    {% if acao.status != 'ativa' %}
+        <p class="mt-2">Só é possível adicionar voluntários em ações ativas.</p>
+    {% endif %}
 </div>
 
 {% if inscricoes %}

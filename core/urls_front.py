@@ -21,6 +21,7 @@ from .views import (
     meu_perfil,
     ranking,
     inicio,
+    inscrever_voluntario_admin,
 )
 
 urlpatterns = [
@@ -32,10 +33,11 @@ urlpatterns = [
     path('acoes/<int:acao_id>/inscrever/', inscrever_acao, name='inscrever_acao'),
     path('acoes/<int:acao_id>/inscritos/', inscritos_acao, name='inscritos_acao'),
     path('acoes/<int:acao_id>/cancelar/', cancelar_acao, name='cancelar_acao'),
+    path('acoes/<int:acao_id>/inscrever-voluntario/', inscrever_voluntario_admin, name='inscrever_voluntario_admin'),
 
     path('inscricoes/<int:inscricao_id>/presenca/', marcar_presenca, name='marcar_presenca'),
     path('inscricoes/<int:inscricao_id>/ausencia/', marcar_ausencia, name='marcar_ausencia'),
-
+    
     path('voluntarios/', voluntarios_list, name='voluntarios_list'),
     path('voluntarios/novo/', voluntario_create, name='voluntario_create'),
     path('voluntarios/<int:voluntario_id>/editar/', voluntario_update, name='voluntario_update'),

@@ -7,9 +7,9 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register(r'voluntarios', VoluntarioViewSet)
-router.register(r'acoes', AcaoComunitariaViewSet)
-router.register(r'inscricoes', InscricaoViewSet)
-router.register(r'campanhas', CampanhaViewSet)
+router.register(r'voluntarios', VoluntarioViewSet, basename='voluntarios')
+router.register(r'acoes', AcaoComunitariaViewSet, basename='acoes')
+router.register(r'inscricoes', InscricaoViewSet, basename='inscricoes')
+router.register(r'campanhas', CampanhaViewSet, basename='campanhas')
 
 urlpatterns = router.urls

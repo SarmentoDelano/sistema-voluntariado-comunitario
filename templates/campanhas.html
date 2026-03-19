@@ -17,6 +17,23 @@
         color: #1f4f82;
     }
 
+    .filter-card {
+        margin-bottom: 24px;
+    }
+
+    .filters-form {
+        display: flex;
+        gap: 12px;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+
+    .filters-form .form-group {
+        min-width: 220px;
+        flex: 1;
+        margin-bottom: 0;
+    }
+
     .campanhas-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -49,6 +66,25 @@
         color: #111827;
     }
 
+    .status-badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-top: 8px;
+    }
+
+    .status-ativa {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-encerrada {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
     .card-actions {
         display: flex;
         gap: 10px;
@@ -65,20 +101,24 @@
         white-space: nowrap;
     }
 
+    .pagination {
+        margin-top: 24px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .pagination-info {
+        font-size: 14px;
+        color: #4b5563;
+    }
+
     .empty-state {
         text-align: center;
         padding: 40px 20px;
         color: #6b7280;
-    }
-
-    .tipo-badge {
-        display: inline-block;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: bold;
-        background-color: #dbeafe;
-        color: #1e40af;
     }
 </style>
 {% endblock %}
@@ -103,6 +143,24 @@
     {% endif %}
 </div>
 
+<div class="card filter-card">
+    <form method="get" class="filters-form">
+        <div class="form-group">
+            <label for="id_status">Status</label>
+            <select name="status" id="id_status">
+                <option value="">Todos</option>
+                <option value="ativa" {% if filtros.status == 'ativa' %}selected{% endif %}>Ativa</option>
+                <option value="encerrada" {% if filtros.status == 'encerrada' %}selected{% endif %}>Encerrada</option>
+            </select>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a href="{% url 'campanhas' %}" class="btn btn-secondary">Limpar</a>
+        </div>
+    </form>
+</div>
+
 {% if campanhas %}
     <div class="campanhas-grid">
         {% for campanha in campanhas %}
@@ -114,8 +172,19 @@
                 </div>
 
                 <div class="campanha-info">
-                    <strong>Tipo:</strong>
-                    <span class="tipo-badge">{{ campanha.get_tipo_campanha_display }}</span>
+                    <strong>Início:</strong> {{ campanha.data_inicio|date:"d/m/Y" }}
+                </div>
+
+                <div class="campanha-info">
+                    <strong>Até:</strong> {{ campanha.data_fim|date:"d/m/Y" }}
+                </div>
+
+                <div class="campanha-info">
+                    <strong>Local:</strong> {{ campanha.local }}
+                </div>
+
+                <div class="status-badge status-{{ campanha.status }}">
+                    {{ campanha.get_status_display }}
                 </div>
 
                 {% if user.is_staff %}
@@ -130,9 +199,25 @@
             </div>
         {% endfor %}
     </div>
+
+    {% if campanhas.paginator.num_pages > 1 %}
+        <div class="pagination">
+            {% if campanhas.has_previous %}
+                <a href="?page={{ campanhas.previous_page_number }}&status={{ filtros.status }}" class="btn btn-secondary">Anterior</a>
+            {% endif %}
+
+            <span class="pagination-info">
+                Página {{ campanhas.number }} de {{ campanhas.paginator.num_pages }}
+            </span>
+
+            {% if campanhas.has_next %}
+                <a href="?page={{ campanhas.next_page_number }}&status={{ filtros.status }}" class="btn btn-secondary">Próxima</a>
+            {% endif %}
+        </div>
+    {% endif %}
 {% else %}
     <div class="card empty-state">
-        <p>Nenhuma campanha cadastrada no momento.</p>
+        <p>Nenhuma campanha encontrada com os filtros selecionados.</p>
     </div>
 {% endif %}
 {% endblock %}

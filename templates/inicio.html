@@ -105,7 +105,7 @@
         color: #111827;
     }
 
-    .tipo-badge,
+    .campanha-status,
     .acao-status {
         display: inline-block;
         padding: 6px 10px;
@@ -113,11 +113,6 @@
         font-size: 12px;
         font-weight: bold;
         margin-top: 8px;
-    }
-
-    .tipo-badge {
-        background-color: #dbeafe;
-        color: #1e40af;
     }
 
     .status-ativa {
@@ -131,6 +126,11 @@
     }
 
     .status-finalizada {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
+    .status-encerrada {
         background-color: #e5e7eb;
         color: #374151;
     }
@@ -154,6 +154,20 @@
     .btn:disabled {
         opacity: 0.7;
         cursor: not-allowed;
+    }
+
+    .pagination {
+        margin-top: 24px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .pagination-info {
+        font-size: 14px;
+        color: #4b5563;
     }
 
     .empty-state {
@@ -203,7 +217,7 @@
 </div>
 
 <div class="section-block">
-    <h3 class="section-title">Campanhas</h3>
+    <h3 class="section-title" id="campanhas">Campanhas</h3>
 
     {% if campanhas %}
         <div class="campanhas-grid">
@@ -216,12 +230,39 @@
                     </div>
 
                     <div class="campanha-info">
-                        <strong>Tipo:</strong>
-                        <span class="tipo-badge">{{ campanha.get_tipo_campanha_display }}</span>
+                        <strong>Início:</strong> {{ campanha.data_inicio|date:"d/m/Y" }}
+                    </div>
+
+                    <div class="campanha-info">
+                        <strong>Até:</strong> {{ campanha.data_fim|date:"d/m/Y" }}
+                    </div>
+
+                    <div class="campanha-info">
+                        <strong>Local:</strong> {{ campanha.local }}
+                    </div>
+
+                    <div class="campanha-status status-{{ campanha.status }}">
+                        {{ campanha.get_status_display }}
                     </div>
                 </div>
             {% endfor %}
         </div>
+
+        {% if campanhas.paginator.num_pages > 1 %}
+            <div class="pagination">
+                {% if campanhas.has_previous %}
+                    <a href="?campanhas_page={{ campanhas.previous_page_number }}&acoes_page={{ acoes.number }}#campanhas" class="btn btn-secondary">Anterior</a>
+                {% endif %}
+
+                <span class="pagination-info">
+                    Página {{ campanhas.number }} de {{ campanhas.paginator.num_pages }}
+                </span>
+
+                {% if campanhas.has_next %}
+                    <a href="?campanhas_page={{ campanhas.next_page_number }}&acoes_page={{ acoes.number }}#campanhas" class="btn btn-secondary">Próxima</a>
+                {% endif %}
+            </div>
+        {% endif %}
     {% else %}
         <div class="card empty-state">
             <p>Nenhuma campanha cadastrada no momento.</p>
@@ -229,7 +270,7 @@
     {% endif %}
 </div>
 
-<div class="section-block">
+<div class="section-block" id="acoes">
     <h3 class="section-title">Ações Comunitárias</h3>
 
     {% if acoes %}
@@ -281,6 +322,22 @@
                 </div>
             {% endfor %}
         </div>
+
+        {% if acoes.paginator.num_pages > 1 %}
+            <div class="pagination">
+                {% if acoes.has_previous %}
+                    <a href="?acoes_page={{ acoes.previous_page_number }}&campanhas_page={{ campanhas.number }}#acoes" class="btn btn-secondary">Anterior</a>
+                {% endif %}
+
+                <span class="pagination-info">
+                    Página {{ acoes.number }} de {{ acoes.paginator.num_pages }}
+                </span>
+
+                {% if acoes.has_next %}
+                    <a href="?acoes_page={{ acoes.next_page_number }}&campanhas_page={{ campanhas.number }}#acoes" class="btn btn-secondary">Próxima</a>
+                {% endif %}
+            </div>
+        {% endif %}
     {% else %}
         <div class="card empty-state">
             <p>Nenhuma ação comunitária cadastrada no momento.</p>

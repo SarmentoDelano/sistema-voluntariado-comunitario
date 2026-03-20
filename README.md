@@ -108,7 +108,7 @@ python manage.py runserver
 
 ## Demonstração em Vídeo
 
-📌 (link do vídeo da sua apresentação)
+📌 https://youtu.be/Q2BBROUChao
 
 ## Contexto Acadêmico
 
@@ -121,4 +121,5 @@ python manage.py runserver
 ## Autor
 
 Delano Sarmento
+
 GitHub: https://github.com/SarmentoDelano

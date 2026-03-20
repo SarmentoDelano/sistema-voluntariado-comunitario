@@ -31,7 +31,7 @@ Thumbs.db
 **/migrations/
 !**/migrations/__init__.py
 
-# Static files
+# Static file
 staticfiles/
 
 # Coverage / tests

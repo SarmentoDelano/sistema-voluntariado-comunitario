@@ -50,7 +50,7 @@ Interface para criação e gerenciamento de campanhas sociais.
 
 ###  Cadastro de Ações
 ![Ações](./docs/acoes.png)
-Tela para criação de ações vinculadas às campanhas.
+Tela para criação e gerenciamento de ações.
 
 ---
 

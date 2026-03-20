@@ -70,6 +70,7 @@ Processo de vinculação de voluntários às ações sociais.
 ### 1. Clonar o repositório
 
 git clone https://github.com/SarmentoDelano/sistema-voluntariado-comunitario.git
+
 cd sistema-voluntariado-comunitario
 ### 2. Criar e ativar o ambiente virtual
 
@@ -96,7 +97,7 @@ python manage.py runserver
 
 ## Aplicação do Projeto
 
-## O sistema foi utilizado em um cenário real simulado na Igreja Batista Comunidade Esperança, onde foram cadastradas:
+### O sistema foi utilizado em um cenário real simulado na Igreja Batista Comunidade Esperança, onde foram cadastradas:
 
 - Campanhas de doação de cestas básicas
 - Campanhas de arrecadação de material escolar

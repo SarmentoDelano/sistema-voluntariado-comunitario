@@ -75,6 +75,7 @@ cd sistema-voluntariado-comunitario
 ### 2. Criar e ativar o ambiente virtual
 
 python -m venv venv
+
 venv\Scripts\activate
 
 ### 3. Instalar as dependências

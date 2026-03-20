@@ -98,7 +98,7 @@ python manage.py runserver
 
 ## Aplicação do Projeto
 
-### O sistema foi utilizado em um cenário real simulado na Igreja Batista Comunidade Esperança, onde foram cadastradas:
+### O sistema foi utilizado na Igreja Batista Comunidade Esperança, onde foram cadastradas:
 
 - Campanhas de doação de cestas básicas
 - Campanhas de arrecadação de material escolar
@@ -108,7 +108,7 @@ python manage.py runserver
 
 ## Demonstração em Vídeo
 
-📌 (Adicione aqui o link do vídeo da sua apresentação)
+📌 (link do vídeo da sua apresentação)
 
 ## Contexto Acadêmico
 

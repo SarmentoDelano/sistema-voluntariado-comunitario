@@ -16,7 +16,7 @@ O sistema foi aplicado na **Igreja Batista Comunidade Esperança – Salvador/BA
 - Criação e gerenciamento de campanhas  
 - Criação e gerenciamento de ações sociais  
 - Inscrição de voluntários em ações  
-- Controle de permissões (admin e voluntário)  
+- Ranking dos voluntários  
 - Listagem com filtros e paginação  
 - Interface simples e intuitiva  
 

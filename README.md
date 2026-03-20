@@ -65,3 +65,58 @@ Gerenciamento de voluntários e inscrição em ações.
 Processo de vinculação de voluntários às ações sociais.
 
 ---
+## ⚙️ Instalação e Configuração
+
+### 1. Clonar o repositório
+
+git clone https://github.com/SarmentoDelano/sistema-voluntariado-comunitario.git
+cd sistema-voluntariado-comunitario
+### 2. Criar e ativar o ambiente virtual
+
+python -m venv venv
+venv\Scripts\activate
+
+### 3. Instalar as dependências
+
+pip install -r requirements.txt
+
+### 4. Aplicar as migrações do banco de dados
+
+python manage.py migrate
+
+### 5. Criar um superusuário
+
+python manage.py createsuperuser
+
+### 6. Executar o servidor de desenvolvimento
+
+python manage.py runserver
+
+###A aplicação estará disponível em: http://127.0.0.1:8000/
+
+## Aplicação do Projeto
+
+##O sistema foi utilizado em um cenário real simulado na Igreja Batista Comunidade Esperança, onde foram cadastradas:
+
+- Campanhas de doação de cestas básicas
+- Campanhas de arrecadação de material escolar
+- Ações sociais como distribuição de sopas
+- Voluntários vinculados às ações
+- Demonstrando a viabilidade da plataforma para uso em comunidades locais.
+
+## Demonstração em Vídeo
+
+📌 (Adicione aqui o link do vídeo da sua apresentação)
+
+## Contexto Acadêmico
+
+###Este projeto foi desenvolvido como parte das Atividades Extensionistas, com foco em:
+
+- Inclusão digital
+- Impacto social
+- Aplicação prática de tecnologia
+
+## Autor
+
+Delano Sarmento
+GitHub: https://github.com/SarmentoDelano

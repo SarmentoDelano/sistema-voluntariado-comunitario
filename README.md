@@ -92,11 +92,11 @@ python manage.py createsuperuser
 
 python manage.py runserver
 
-###A aplicação estará disponível em: http://127.0.0.1:8000/
+### A aplicação estará disponível em: http://127.0.0.1:8000/
 
 ## Aplicação do Projeto
 
-##O sistema foi utilizado em um cenário real simulado na Igreja Batista Comunidade Esperança, onde foram cadastradas:
+## O sistema foi utilizado em um cenário real simulado na Igreja Batista Comunidade Esperança, onde foram cadastradas:
 
 - Campanhas de doação de cestas básicas
 - Campanhas de arrecadação de material escolar
@@ -110,7 +110,7 @@ python manage.py runserver
 
 ## Contexto Acadêmico
 
-###Este projeto foi desenvolvido como parte das Atividades Extensionistas, com foco em:
+### Este projeto foi desenvolvido como parte das Atividades Extensionistas, com foco em:
 
 - Inclusão digital
 - Impacto social
